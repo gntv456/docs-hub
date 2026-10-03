@@ -49,7 +49,7 @@ npm run docs:build    # 产物在 docs/.vitepress/dist
 ### 方式 A：GitHub Pages（已带 `.github/workflows/deploy.yml`）
 1. 仓库 Settings → Pages → Source 选 **GitHub Actions**。
 2. DNS：`wiki.ptang.top` CNAME → `<你的user>.github.io`。
-3. `git push` 到 `main` 即自动发布（CNAME 会被自动复用）。
+3. `git push` 到 `master` 即自动发布（CNAME 会被自动复用）。
 
 ### 方式 B：Cloudflare Pages（自定义域名最省）
 1. Cloudflare 建 Pages → 连 Git 仓库；Build `npm run docs:build`，输出 `docs/.vitepress/dist`。
