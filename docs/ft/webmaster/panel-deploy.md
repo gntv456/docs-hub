@@ -1,0 +1,37 @@
+# 部署方式总览（SSH / 1Panel / 宝塔 怎么选）
+
+> 不懂的词先查 [术语小词典](/ft/webmaster/glossary)。
+> 本篇是**部署方式的选型与通用注意事项**。逐步操作在对应的方式专文里：
+> - **[SSH 部署方式](/ft/webmaster/build-tutorial)**（命令行，从买服务器到上线）
+> - **[1Panel 部署方式](/ft/webmaster/deploy-1panel)**（面板图形化）
+> - **[宝塔部署方式](/ft/webmaster/deploy-baota)**（面板图形化）
+>
+> 三种方式**安装向导四步、开站前检查、发种邀请完全一样**，区别只在「怎么起栈」和「怎么配反代/证书」。
+
+## TL;DR（赶时间看这版）
+
+- **拿不定主意** → 选 SSH 命令行（[看教程](/ft/webmaster/build-tutorial)），最可控、资料最多。
+- **想图形化点点鼠标** → 1Panel 或宝塔，二选一即可（[1Panel](/ft/webmaster/deploy-1panel) / [宝塔](/ft/webmaster/deploy-baota)）。
+- **一句话原则**：面板只是「跑 Docker + 反代 + 证书」的外壳，本站永远以 compose 整包运行。
+
+## 一句话原则
+
+**面板只当「运行 Docker + 反代 + 证书」的外壳**，本站永远以 compose 栈（一整包容器）运行，不拆成面板的网站目录。这样升级、回滚、换机器都和裸机手动装完全一样（见 [升级与回滚](/ft/webmaster/upgrade)）。
+
+## 三种方式对比
+
+| 方式 | 起栈 | 反代/证书 | 适合 |
+| :--- | :--- | :--- | :--- |
+| SSH 命令行 | 终端 `docker compose up -d` | 手敲 Nginx + certbot | 想完全掌控、熟悉终端 |
+| 1Panel | 面板「编排」创建并启动 | 面板网站反代 + Let's Encrypt（tracker 需补 `/announce/`） | 想图形化、1Panel 顺手 |
+| 宝塔 | 终端 `up -d`（免费版无编排 UI） | 宝塔网站反代 + Let's Encrypt（tracker 需补 `/announce/`） | 熟悉宝塔 |
+
+## 面板通用注意事项（两个方式都适用）
+
+1. **别装成面板应用**：1Panel 应用商店没有 FluxTorrent 条目，也不要装成面板应用——应用商店应用的升级路径不受我们控制，会和 compose 栈冲突。
+2. **别让面板「自动拉取镜像更新」**：升级按 `git pull && 重新 up` 的节奏，且先看 CHANGELOG。
+3. **tracker 反代要手动补**：面板默认只反代了网站（3000），`/announce/` → 7070 这段要在网站 Nginx 配置里手动加，否则用户做不了种。
+4. **别用「Python/Node 项目」形态**：那会把栈拆散成面板托管，升级和多机扩容对不上。
+5. **MySQL/Redis 别在面板另装**：栈内自带，再装只会抢端口。
+
+> 更细的逐步操作、每一步点哪，进对应的方式专文。域名/HTTPS 的原理见 [域名部署](/ft/webmaster/domain-deploy)。
