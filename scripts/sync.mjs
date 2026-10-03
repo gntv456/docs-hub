@@ -114,6 +114,26 @@ function escapeBareOpenAngle(text) {
   }).join('\n')
 }
 
+// Vue 插值转义：md 里的 {{...}}（docker --format '{{.State.Error}}'、Go 模板）
+// 会被 Vue 编译器当 JS 表达式解析，语法不合法直接构建失败。围栏代码块里
+// VitePress 同样插值，也要包；行内代码 `...` 里 Vue 不插值——但为省心统一
+// 处理（包 span 在行内代码里会被反引号原样显示，不可接受），行内代码改用
+// 零宽转义：在两个花括号间插零宽空格拆开插值定界符，肉眼不可见、复制略有噪声，
+// 只影响走 {{ 语法的 md（罕见）。
+function escapeVueInterpolation(text) {
+  const lines = text.split('\n')
+  let inFence = false
+  return lines.map((line) => {
+    if (/^\s*(```|~~~)/.test(line)) { inFence = !inFence; return line }
+    return line.split(/(`[^`]*`)/).map((seg, i) => {
+      if (i % 2 === 1)
+        // 行内代码内：插零宽空格拆定界符（v-pre 标签会被反引号字面显示）
+        return seg.replace(/\{\{([^{}]*)\}\}/g, '{\u200b{$1}\u200b}')
+      return seg.replace(/\{\{([^{}]*)\}\}/g, '<span v-pre>{{$1}}</span>')
+    }).join('')
+  }).join('\n')
+}
+
 // ---------------------------------------------------------------- 清理
 if (process.argv.includes('--clean')) {
   for (const p of PROJECTS) {
@@ -217,6 +237,8 @@ for (const p of PROJECTS) {
     })
     // Vue 模板转义：md 里裸写的 `<接口名>`（中文泛型/占位符）会被当未闭合 HTML 标签，构建报错
     text = escapeBareOpenAngle(text)
+    // Vue 插值转义：正文 {{...}}（Go/docker 模板）会被当 Vue 表达式，包 v-pre
+    text = escapeVueInterpolation(text)
     mkdirSync(dirname(dest), { recursive: true })
     writeFileSync(dest, text)
   }
