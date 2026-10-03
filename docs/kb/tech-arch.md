@@ -286,4 +286,4 @@ flutter build hap --release     # 适配后
 - **单元**：`week_math`、`conflict`、`color_hash`、repository（内存 DB）。
 - **组件**：Glass 组件快照、CourseBlock 渲染。
 - **集成**：建课 → 出现在周视图 → 通知调度。
-- 详见测试专家审查报告 [REVIEW.md](/kb/review)。
+- 详见测试专家审查报告 [REVIEW.md](./REVIEW.md)。

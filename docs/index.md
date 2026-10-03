@@ -13,18 +13,18 @@ hero:
       link: /ptp/
 features:
   - title: FluxTorrent
-    details: Rust + Next.js 的 NexusPHP 兼容私种站 · 44 篇
+    details: Rust + Next.js 的 NexusPHP 兼容私种站 · 43 篇
     link: /ft/
   - title: PTPatronus
-    details: PT 守护神：Go 后端 + Vue3 Web + Flutter 六端客户端 · 26 篇
+    details: PT 守护神：Go 后端 + Vue3 Web + Flutter 六端客户端 · 24 篇
     link: /ptp/
   - title: HX-Tanqu
-    details: 私有化短视频 / 短剧探索终端（好学探索） · 11 篇
+    details: 私有化短视频 / 短剧探索终端（好学探索） · 8 篇
     link: /tanqu/
   - title: 好学云谱
     details: 液态玻璃家谱 / 族谱管理 · 4 篇
     link: /jiapu/
   - title: 课表 ClassSchedule
-    details: iOS 26 液态玻璃课程表 App（Flutter 三端） · 16 篇
+    details: iOS 26 液态玻璃课程表 App（Flutter 三端） · 12 篇
     link: /kb/
 ---

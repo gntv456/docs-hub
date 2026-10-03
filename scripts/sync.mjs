@@ -24,6 +24,9 @@ const DOCS = join(ROOT, 'docs')
 // key: 子路径；name: 显示名；dir: 源仓库绝对路径；tagline/heroImage: 生成首页用
 // sections: [源目录(相对 dir), 侧栏组名]；extra: [源文件, 组名] 散页
 // assets: [源目录, 目标目录(相对 docs/{key}), 文件名正则] 静态资源
+// exclude: 正则（对源文件相对项目的路径匹配）——**内部过程文档不进公开 wiki**：
+//   一次性测试/修复报告、审查/立项/推进记录、竞品评测等属于仓库工作档案，
+//   公开只会误导（过期状态、内部口径）且拉低信噪比。匹配即整文件跳过。
 const PROJECTS = [
   {
     key: 'ft', name: 'FluxTorrent', dir: 'D:/FluxTorrent',
@@ -34,17 +37,23 @@ const PROJECTS = [
       ['docs/ops', '运维手册'],
     ],
     extra: [['docs/README.md', '总览']],
+    // wiki-plan 是建设方案书（内部过程文档），收录口径与读者（外部站长/开发者）不符
+    exclude: [/webmaster[\\/]wiki-plan\.md$/],
   },
   {
     key: 'ptp', name: 'PTPatronus', dir: 'D:/PTPatronus',
     tagline: 'PT 守护神：Go 后端 + Vue3 Web + Flutter 六端客户端',
     sections: [['README', '手册']],   // README/ 是目录（25 篇手册）；根 README.md 不收
     extra: [['CHANGELOG.md', '发布']],
+    // 立项/推进记录 = 内部过程文档（状态随仓库推进过期，口径内部）
+    exclude: [/后端错误消息码化立项|移动端无障碍推进/],
   },
   {
     key: 'tanqu', name: 'HX-Tanqu', dir: 'D:/HX-Tanqu',
     tagline: '私有化短视频 / 短剧探索终端（好学探索）',
     sections: [['docs', '文档']],
+    // 竞品评测/验收报告/测试记录 = 内部工作档案，非对外文档
+    exclude: [/竞品对标与可借鉴项评测报告|验收报告|刮削系统测试/],
   },
   {
     key: 'jiapu', name: '好学云谱', dir: 'D:/jiapu',
@@ -57,6 +66,8 @@ const PROJECTS = [
     key: 'kb', name: '课表 ClassSchedule', dir: 'D:/kechengbiao',
     tagline: 'iOS 26 液态玻璃课程表 App（Flutter 三端）',
     sections: [['docs', '文档']],
+    // 一次性测试/修复/审查报告 = 过期即失效的工作档案，不适合公开 wiki
+    exclude: [/fix-report-|test-report-|[\\/]review\.md$/],
   },
 ]
 
@@ -165,8 +176,17 @@ for (const p of PROJECTS) {
     const files = entries.filter((f) => statSync(join(sd, f)).isFile() && f.endsWith('.md'))
     const dirs = entries.filter((f) => statSync(join(sd, f)).isDirectory())
     const items = []
+    // exclude 判定：把源绝对路径归一成正斜杠后，对「相对项目根路径」和
+    // 「全路径」都试一遍（Windows join 出反斜杠、PROJECTS 里 dir 是正斜杠，
+    // slice 前必须先归一否则切错位）。统一小写比较——slugify 会把文件名
+    // 落成小写 URL，exclude 正则按小写写即可（源文件名可能全大写）。
+    const excluded = (src) => {
+      const norm = src.replace(/\\/g, '/').toLowerCase()
+      const rel = norm.slice(p.dir.length + 1)
+      return (p.exclude ?? []).some((re) => re.test(rel) || re.test(norm))
+    }
     const readme = files.find((f) => f.toLowerCase() === 'readme.md')
-    if (readme) {
+    if (readme && !excluded(join(sd, readme))) {
       const src = join(sd, readme)
       const href = urlPrefix.replace(/\/$/, '')
       hrefMap.set(normAbs(src).toLowerCase(), href)
@@ -176,6 +196,7 @@ for (const p of PROJECTS) {
     for (const f of files) {
       if (f.toLowerCase() === 'readme.md') continue
       const src = join(sd, f)
+      if (excluded(src)) continue
       const slug = slugify(f)
       const href = `${urlPrefix}${slug}`
       hrefMap.set(normAbs(src).toLowerCase(), href)
