@@ -8,6 +8,4 @@
 - [工具生态收录](/ft/ops/ecosystem)：PT-Plugin-Plus/Jackett/cross-seed 适配指南
 - [兼容矩阵](/ft/ops/compat-matrix)：生态工具协议级冒烟实证（PTPP/cross-seed/NP 系客户端全绿）
 - [运维事件订阅](/ft/ops/events)：生命周期事件 webhook 矩阵（注册/封禁/H&R/捐赠）
-- [搜索方案评估](/ft/ops/search-eval)：pg_trgm 继续用/外置引擎触发条件与升级路径
-- [质量基建](/ft/ops/quality-gates)：覆盖率基线（vitest/cargo-llvm-cov）与 Playwright 冒烟
 - [安全姿态](/ft/ops/security)：认证/响应头/CSP 基线/限流/审计与开站自查清单

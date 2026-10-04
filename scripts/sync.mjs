@@ -37,23 +37,24 @@ const PROJECTS = [
       ['docs/ops', '运维手册'],
     ],
     extra: [['docs/README.md', '总览']],
-    // wiki-plan 是建设方案书（内部过程文档），收录口径与读者（外部站长/开发者）不符
-    exclude: [/webmaster[\\/]wiki-plan\.md$/],
+    // wiki 定位=对外：让站长了解项目、装起来、排障。内部过程/决策档案不进
+    //（wiki-plan 建设方案、quality-gates/search-eval 内部评估批 E14/E9）
+    exclude: [/webmaster[\\/]wiki-plan\.md$/, /ops[\\/](quality-gates|search-eval)\.md$/],
   },
   {
     key: 'ptp', name: 'PTPatronus', dir: 'D:/PTPatronus',
     tagline: 'PT 守护神：Go 后端 + Vue3 Web + Flutter 六端客户端',
     sections: [['README', '手册']],   // README/ 是目录（25 篇手册）；根 README.md 不收
     extra: [['CHANGELOG.md', '发布']],
-    // 立项/推进记录 = 内部过程文档（状态随仓库推进过期，口径内部）
-    exclude: [/后端错误消息码化立项|移动端无障碍推进/],
+    // 立项/推进/评估记录 = 内部过程文档（状态随仓库推进过期，口径内部）
+    exclude: [/后端错误消息码化立项|移动端无障碍推进|前端i18n接入评估/],
   },
   {
     key: 'tanqu', name: 'HX-Tanqu', dir: 'D:/HX-Tanqu',
     tagline: '私有化短视频 / 短剧探索终端（好学探索）',
     sections: [['docs', '文档']],
-    // 竞品评测/验收报告/测试记录 = 内部工作档案，非对外文档
-    exclude: [/竞品对标与可借鉴项评测报告|验收报告|刮削系统测试/],
+    // 竞品评测/验收报告/测试记录/内部评估 = 内部工作档案，非对外文档
+    exclude: [/竞品对标与可借鉴项评测报告|验收报告|刮削系统测试|多端方案|策划文档/],
   },
   {
     key: 'jiapu', name: '好学云谱', dir: 'D:/jiapu',
@@ -66,8 +67,8 @@ const PROJECTS = [
     key: 'kb', name: '课表 ClassSchedule', dir: 'D:/kechengbiao',
     tagline: 'iOS 26 液态玻璃课程表 App（Flutter 三端）',
     sections: [['docs', '文档']],
-    // 一次性测试/修复/审查报告 = 过期即失效的工作档案，不适合公开 wiki
-    exclude: [/fix-report-|test-report-|[\\/]review\.md$/],
+    // 一次性测试/修复/审查报告、内部评估 = 过期即失效的工作档案，不进公开 wiki
+    exclude: [/fix-report-|test-report-|[\\/]review\.md$|[\\/]competitive-analysis\.md$|[\\/]p3-roadmap\.md$/],
   },
 ]
 

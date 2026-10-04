@@ -15,7 +15,7 @@ features:
     details: 9 篇
     link: /ft/customize/
   - title: 运维手册
-    details: 12 篇
+    details: 10 篇
     link: /ft/ops/
   - title: 总览
     details: 1 篇
