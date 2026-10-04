@@ -368,7 +368,7 @@ export default defineConfig({
     nav: NAV,
     sidebar: ${JSON.stringify(sidebar)},
     search: { provider: 'local' },
-    socialLinks: [{ icon: 'github', link: 'https://github.com/your-org' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/gntv456' }],
     outline: { label: '本页目录' },
     docFooter: { prev: '上一篇', next: '下一篇' },
     lastUpdated: { text: '最后更新' },
