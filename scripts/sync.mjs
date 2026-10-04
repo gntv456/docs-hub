@@ -36,7 +36,7 @@ const PROJECTS = [
       ['docs/customize', '自定义手册'],
       ['docs/ops', '运维手册'],
     ],
-    extra: [['docs/README.md', '总览']],
+    extra: [['docs/README.md', '总览'], ['CHANGELOG.md', '更新日志']],
     // wiki 定位=对外：让站长了解项目、装起来、排障。内部过程/决策档案不进
     //（wiki-plan 建设方案、quality-gates/search-eval 内部评估批 E14/E9）
     exclude: [/webmaster[\\/]wiki-plan\.md$/, /ops[\\/](quality-gates|search-eval)\.md$/],

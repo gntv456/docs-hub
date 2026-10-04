@@ -20,4 +20,7 @@ features:
   - title: 总览
     details: 1 篇
     link: /ft/readme
+  - title: 更新日志
+    details: 1 篇
+    link: /ft/changelog
 ---

@@ -13,7 +13,7 @@ hero:
       link: /ptp/
 features:
   - title: FluxTorrent
-    details: Rust + Next.js 的 NexusPHP 兼容私种站 · 41 篇
+    details: Rust + Next.js 的 NexusPHP 兼容私种站 · 42 篇
     link: /ft/
   - title: PTPatronus
     details: PT 守护神：Go 后端 + Vue3 Web + Flutter 六端客户端 · 23 篇
