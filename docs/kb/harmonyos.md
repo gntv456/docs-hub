@@ -80,7 +80,7 @@ Flutter 端（nextClassWidgetSyncProvider）
 - Flutter 侧已实现：[`lib/application/widget_sync_provider.dart`](../lib/application/widget_sync_provider.dart)，由 `MainShell` 订阅，数据/时钟变化即重写。
 - 鸿蒙侧约定 `path_provider` 的 `documentsDir` 与卡片 `context.filesDir` 指向同一沙箱目录；若引擎映射不一致，可改用 MethodChannel 由 FormAbility 主动拉取（见下节）。
 
-> 在 Android/iOS 端该文件仅占空间、无副作用；仅鸿蒙卡片消费。
+> ~~在 Android/iOS 端该文件仅占空间、无副作用~~ **Android 端已由桌面小组件消费**（见第 8 节）；iOS 端仍仅占空间。
 
 ## 5. 卡片点击跳转
 
@@ -145,3 +145,35 @@ ArkTS 侧在 plugin 中接收并调用 `formProvider.updateForm`。适用于卡�
 - 鸿蒙端未在本机构建验证（无鸿蒙 SDK/设备）；ArkTS 卡片与 `EntryAbility` 均为可集成模板，需在 DevEco Studio 接 flutter_harmony 引擎后出包验证。
 - 卡片点击跳转的**深链链路已全打通**：卡片 `postCardAction`（既有）→ `EntryAbility` 读 `want.parameters.target`（[模板](../ohos/widget/EntryAbility.ets)）→ Flutter [`HarmonyWidgetBridge`](../lib/application/harmony_widget_bridge.dart) → `go_router` 直达课程页。Flutter 侧已通过 `flutter analyze`；ArkTS 侧待真机验证。
 - 多学期卡片可复用当前 `openTarget` / agenda 字段，后续按 `termId` 扩展共享 JSON 即可。
+
+## 8. Android 桌面小组件
+
+Android 端卡片（4×2「下一节课 + 今日日程」）已随主工程出包，无需额外模块：
+
+| 文件 | 作用 |
+|---|---|
+| `android/.../TodayClassWidgetProvider.kt` | AppWidgetProvider：读共享 JSON → RemoteViews 渲染（深浅色自适应，`values-night/widget_colors.xml` 夜间变体） |
+| `android/.../MainActivity.kt` | 注册 `kechengbiao/widget` 通道（与鸿蒙桥同名同契约） |
+| `android/app/src/main/res/layout/widget_today_class.xml` | 卡片布局：头部下一节/倒计时 + 今日日程 3 行（色点按课程色着色） |
+| `android/app/src/main/res/xml/widget_today_class_info.xml` | appwidget-provider 声明（4×2、可缩放、30 分钟兜底刷新） |
+
+### 数据与刷新
+
+- 数据源与鸿蒙完全同源：`files/.today_class.json`（schema 2），Provider 与 App 同 UID 直读，无权限。
+- **实时**：Flutter 写完文件后经通道 `widgetUpdated` 通知原生 `pushUpdate`（App 前台时秒级刷新）。
+- **兜底**：`updatePeriodMillis=1800000`（30 分钟），App 被杀后系统仍会拉起 onUpdate 自读文件。
+
+### 点击深链
+
+卡片点击 → 打开 MainActivity（singleTop）：
+- 冷启动：`getLaunchTarget()` 从 intent extra 取 `widget_target` 返回给鸿蒙桥（`HarmonyWidgetBridge.init` 已接），路由校验只放行 `/course/<id>`；
+- 热启动：`onNewIntent` 经通道 `pushTarget` 推给 Dart，pending 重放机制与鸿蒙一致。
+
+### 真机验证清单
+
+1. 长按桌面 → 小部件 → 「好学课程表 · 下一节课 · 今日日程」→ 拖到桌面（4×2）；
+2. 卡片显示下一节课名/地点/节次/倒计时，下方列出今日最多 3 节课（含调课/停课例外）；
+3. App 内改课表（停一节课/调课）→ 回桌面，卡片应数秒内刷新；
+4. 点卡片 → 打开 App 并落到对应课程编辑页；无课态点击仅打开 App；
+5. 系统深色模式切换 → 卡片底色/文字自适应；
+6. 重启手机（不打开 App）→ 30 分钟内卡片至少自刷一次（倒计时文本更新）。
