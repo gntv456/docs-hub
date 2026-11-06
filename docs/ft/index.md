@@ -11,6 +11,9 @@ features:
   - title: 站长手册
     details: 24 篇
     link: /ft/webmaster/
+  - title: 用户手册
+    details: 8 篇
+    link: /ft/user/
   - title: 自定义手册
     details: 9 篇
     link: /ft/customize/

@@ -33,6 +33,7 @@ const PROJECTS = [
     tagline: 'Rust + Next.js 的 NexusPHP 兼容私种站',
     sections: [
       ['docs/webmaster', '站长手册'],
+      ['docs/user', '用户手册'],
       ['docs/customize', '自定义手册'],
       ['docs/ops', '运维手册'],
     ],
@@ -403,6 +404,27 @@ ${PROJECTS.map((p) => `  - title: ${p.name}\n    details: ${p.tagline} · ${leav
 ---
 `
 writeFileSync(join(DOCS, 'index.md'), hubIndex)
+
+// llms.txt（0425，YemaPT 对标 B 批）：全站文档索引——LLM/爬虫一跳取全量
+// 页清单（Markdown 源 + cleanUrls 直链）。public/ 原样直通产物根。
+const flatLinks = (items) =>
+  items.flatMap((it) => (it.items ? flatLinks(it.items) : it.link ? [it] : []))
+let llms = `# Docs Hub
+
+FluxTorrent 与周边项目文档中枢（VitePress；cleanUrls，页面均可加 .md 取 Markdown 源）。
+
+`
+for (const p of PROJECTS) {
+  llms += `## ${p.name}
+
+`
+  for (const it of flatLinks(sidebars[p.key])) {
+    llms += `- [${it.text}](${it.link})\n`
+  }
+  llms += '\n'
+}
+mkdirSync(join(DOCS, 'public'), { recursive: true })
+writeFileSync(join(DOCS, 'public', 'llms.txt'), llms)
 
 const summary = PROJECTS.map((p) => `${p.key} ${leavesOf(sidebars[p.key])}页`).join(' · ')
 console.log('synced:', summary, `共 ${PROJECTS.reduce((n, p) => n + leavesOf(sidebars[p.key]), 0)} 页`)
