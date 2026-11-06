@@ -9,13 +9,13 @@ hero:
       link: /ft/readme
 features:
   - title: 站长手册
-    details: 22 篇
+    details: 24 篇
     link: /ft/webmaster/
   - title: 自定义手册
     details: 9 篇
     link: /ft/customize/
   - title: 运维手册
-    details: 10 篇
+    details: 13 篇
     link: /ft/ops/
   - title: 总览
     details: 1 篇

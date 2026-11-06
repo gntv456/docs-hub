@@ -24,4 +24,39 @@
 
 ## 主题
 
-主题包 = 一组 theme_token 预设；配合 TIDE 系 CSS 令牌（`--brand-glow`、明暗双态），换主题不改布局只换气质。想要完全自定义：后台取色器逐键调，或导出主题包备份。
+主题包 = 一组 theme_token 预设；配合 TIDE 系 CSS 令牌（`--compat-glow`、明暗双态），换主题不改布局只换气质。想要完全自定义：后台取色器逐键调，或导出主题包备份。
+
+## 内置主题四档与「山海经」双层架构（2026-11-03）
+
+切换器四档：日间（brand）/ 夜间（brand-night）/ 山海经（shanhaijing）/ 跟随系统。
+主题注册表唯一真源 `apps/web/lib/themes.ts`（id → chrome/scheme），
+no-flash 脚本、切换器、注册表门禁测试都从它消费。
+
+山海经（岩彩长卷）分两层落地，边界如下：
+
+| 层 | 内容 | 落点 |
+| :--- | :--- | :--- |
+| 甲 · 令牌层 | 约 140 个令牌槽位（四正色/玄墨表面/宣纸文本/金线/状态/圆角/阴影/焦点环/--compat-\* 兼容层/--mood-\* 画布色/--tide-\* 桥接） | `apps/web/app/styles/theme-shanhaijing.css`（只写 `[data-theme="shanhaijing"]` 作用域） |
+| 乙 · 结构层 | 图鉴侧栏三态（`components/shj-atlas.tsx`）、Hero 山海图卷（`components/shj-hero.tsx`）、竹简表/印章角标皮肤、游戏大厅岩彩化（`arcade-sweet.css` 末段山海经块）、站点背景 CSS 星峦纹 | 同上 + 组件（恒渲染、CSS 控显隐） |
+
+纪律：新色值只能进令牌块；组件零硬编码；三态结构组件对 brand/brand-night 一律 `display:none` 零影响。
+
+回滚：① 用户侧：切换器换档即恢复；② 代码侧：删 `globals.css` 里 `theme-shanhaijing.css` /
+`fonts-shanhaijing.css` 两行 @import + `themes.ts` 注册项 + `(main)/layout.tsx` 的
+`<ShjAtlas>` 与 `page.tsx` 的 `<ShjHero>`，即回到三套主题，无残留开关。
+
+2026-11-04 起切换器改为**下拉直选**（鼠标悬停不再误触展开），山海经档含
+「宣纸」亮色亚档。分类图标与主题联动：内置两套位图图标集（aurora /
+山海经），主题切档时 `CatIcon` 自动跟随。
+
+## 站点与登录页背景图（2026-10-31 起）
+
+后台「外观与主题」可配三处背景，URL 填站内附件或任意外链：
+
+| 键 | 作用面 | 缺省 |
+| :--- | :--- | :--- |
+| `site_bg_url` / `site_bg_opacity` | 全站内容底图（固定底层，内容壳浮在其上） | 无图；不透明度 25 |
+| `login_bg_url` / `login_bg_opacity` | 登录页背景 | 无图；50 |
+| `login_page_bg_url` / `login_page_bg_opacity` | 登录页**主视觉整页层**（比 login_bg 更靠前，做满屏 hero 用） | 无图；40 |
+
+不透明度 0–100（越大越清晰）；仓库 `public/backgrounds/` 自带三张默认样图可直接引用。

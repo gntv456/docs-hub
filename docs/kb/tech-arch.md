@@ -12,8 +12,8 @@
 | 状态管理 | Riverpod 2.x | 编译期安全、可测、无 BuildContext 依赖 |
 | 本地存储 | Drift 2.x | 类型安全 SQLite + 流式响应 |
 | 路由 | go_router | 声明式、深链、ShellRoute 底部导航 |
-| 通知 | flutter_local_notifications + flutter_timezone | 本地通知，免后端 |
-| 序列化 | freezed + json_serializable | 不可变模型 + JSON |
+| 通知 | flutter_local_notifications + timezone | 本地通知，免后端 |
+| 序列化 | 手写 toMap/fromMap（`data/io/data_io.dart`），仅 drift 走 codegen | 实体是纯 Dart，不引入 freezed |
 | 国际化 | flutter_intl / gen-l10n（预留） | 首版仅 zh-CN |
 | 桌面组件 |（P1）home_widget / iOS WidgetKit | 今日课程卡 |
 
@@ -33,9 +33,11 @@ lib/
 │   ├── router/
 │   │   └── app_router.dart        # go_router 配置
 │   ├── util/
-│   │   ├── week_math.dart         # 学期周次/日期推算
-│   │   ├── conflict.dart          # 课程冲突检测
-│   │   └── color_hash.dart        # 课程默认色 hash
+│   │   ├── format.dart            # 日期/时间展示格式化
+│   │   ├── agenda.dart            # 今日议程聚合（依赖 data 层行类型）
+│   │   ├── color_hash.dart        # 课程默认色 hash
+│   │   ├── responsive.dart        # 断点与宽屏判定
+│   │   └── app_logger.dart        # 运行日志
 │   └── platform/
 │       └── glass_capability.dart  # 模糊能力探测与降级
 ├── data/
@@ -49,17 +51,32 @@ lib/
 │   │   ├── task_repository.dart
 │   │   ├── exam_repository.dart
 │   │   └── settings_repository.dart
-│   └── sync/
-│       ├── sync_client.dart       # 抽象接口
-│       └── noop_sync_client.dart  # 本期实现
+│   ├── sync/
+│   │   ├── sync_client.dart       # 抽象接口
+│   │   └── noop_sync_client.dart  # 本期实现
+│   └── integrations/
+│       ├── competitor_schedule_parser.dart   # 竞品/教务行 → 草稿（共享归一）
+│       └── adapter/                          # 教务适配脚本引擎（脚本可下发，无需发版）
+│           ├── schedule_adapter_spec.dart    # 脚本模型 + 装载期校验
+│           ├── schedule_adapter_engine.dart  # 请求编排、抽取、会话 Cookie、钳制
+│           ├── html_table_extractor.dart     # 表格解析（colspan/rowspan 摊平）
+│           ├── schedule_adapter_catalog.dart # 已装载脚本目录（空 = 未接入）
+│           ├── scripted_academic_import_client.dart # 边界实现 + 错误归一
+│           └── academic_row_normalizer.dart  # 「1-2节」等教务形态 → 草稿入参
 ├── application/
-│   ├── providers.dart             # Riverpod providers 汇总
+│   ├── app_providers.dart         # Riverpod providers 汇总
+│   ├── course_draft_import_service.dart # 草稿→课表唯一入库通道（事务 + 查重键）
 │   ├── schedule/
 │   ├── tasks/
 │   └── settings/
 ├── domain/
 │   ├── entities.dart              # 纯领域模型/枚举
-│   └── failure.dart
+│   ├── failure.dart               # 领域错误
+│   ├── week_math.dart             # 学期周次/日期推算
+│   ├── conflict.dart              # 课程冲突检测
+│   ├── countdown.dart             # 上课/DDL/考试倒计时推算
+│   ├── day_override.dart          # 调课与放假例外
+│   └── gpa.dart                   # GPA 换算与目标分反推
 ├── presentation/
 │   ├── shell/
 │   │   ├── main_shell.dart        # 移动端左侧抽屉 + 宽屏玻璃侧栏
@@ -189,7 +206,7 @@ courses 1──< tasks
 courses 1──< exams
 ```
 
-### 3.3 冲突检测算法（core/util/conflict.dart）
+### 3.3 冲突检测算法（domain/conflict.dart）
 
 给定 `(weeks[], dayOfWeek, [startPeriod, endPeriod])`，遍历同 term 下所有 slot：
 - `weeks` 交集非空 **且** `dayOfWeek` 相同 **且** `[s1,e1] ∩ [s2,e2] ≠ ∅` → 时间冲突；
